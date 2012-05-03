@@ -1,6 +1,6 @@
 *** ArduinoscopeViewer ****
 
-Written for use with Arduinoscope logger.
+Written for use with ArduinoscopeStreamer.
 
 Requires:
 arduinoscope - http://arduinoscope.googlecode.com/files/processing-arduinoscope.zip
