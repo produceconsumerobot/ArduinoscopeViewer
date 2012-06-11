@@ -16,9 +16,9 @@
 **********************************/
 
 /********* USER DEFINED VARIABLES *************/
-const int nInputs =2; // Number of inputs to read
-int inputs[nInputs] = {2, A0}; // Specifies which inputs to measure
-unsigned long samplingFreq = 2; // Sampling rate in Hz
+const int nInputs = 1; // Number of inputs to read
+int inputs[nInputs] = {A0}; // Specifies which inputs to measure
+unsigned long samplingFreq = 1000; // Sampling rate in Hz
 
 #define BAUDRATE 57600 // Serial baud rate
 /****** END OF USER DEFINED VARIABLES *********/
