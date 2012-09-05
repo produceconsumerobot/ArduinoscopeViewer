@@ -42,16 +42,16 @@
 String serialPort = "COM10";
 
 // Give labels to the data values read from the arduino. 
-String[] plotVars = {"ekg", "time"};
+String[] plotVars = {"PulseOx", "Raw", "test01", "time"};
 
 // yOffsets sets the y-axis offset for each plotVar
 // offset the raw data (1st variable) by half the default scope resolution
 // to prevent negative values from extending into other windows
-int[] yOffsets = {-562*16,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+int[] yOffsets = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 // yFactors sets the default y-axis scale for each plotVar
 // yFactors can also be adjusted using buttons in the display window
-float[] yFactors = {16f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f}; 
+float[] yFactors = {1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f,1f}; 
 
 // Directory and name of your saved MindSet data. Make sure you 
 // have write privileges to that location.
@@ -103,7 +103,7 @@ void setup() {
   controlP5 = new ControlP5(this);
      
   int[] dimv = new int[2];
-  dimv[0] = width-130; // 130 margin for text
+  dimv[0] = width-160; // 130 margin for text
   dimv[1] = height/scopes.length;
   
   // setup vals from serial
@@ -121,14 +121,20 @@ void setup() {
     scopes[i].setLine_color(color((int)random(255), (int)random(127)+127, 255)); 
     
     // yFactor buttons
-    controlP5.addButton(i+"*2",1,dimv[0]+10,posv[1]+20,20,20).setId(i).setLabel("*2");  
-    controlP5.addButton((20+i)+"/2",1,dimv[0]+10,posv[1]+70,20,20).setId(20+i).setLabel("/2");       
+    int yButH = dimv[0]+10;
+    controlP5.addButton(i+"*2",1,yButH,posv[1]+20,20,20).setId(i).setLabel("*2");  
+    controlP5.addButton((20+i)+"/2",1,yButH,posv[1]+70,20,20).setId(20+i).setLabel("/2");  
+    // yOffset buttons
+    int oButH = dimv[0]+70;
+    controlP5.addButton(40+i+"*2",1,oButH,posv[1]+20,20,20).setId(40+i).setLabel("+");  
+    controlP5.addButton((60+i)+"/2",1,oButH,posv[1]+70,20,20).setId(60+i).setLabel("-");     
   }
   // record and pause buttons at top of window
-  controlP5.addButton("Record",1,dimv[0]+85,5,40,20).setId(1000);
+  int rButH = dimv[0]+115;
+  controlP5.addButton("Record",1,rButH,5,40,20).setId(1000);
   controlP5.controller("Record").setColorBackground( color( 0, 255 , 0 ) );
   controlP5.controller("Record").setColorLabel(0);
-  controlP5.addButton("Pause",1,dimv[0]+85,30,40,20).setId(1100);
+  controlP5.addButton("Pause",1,rButH,30,40,20).setId(1100);
   
   // setup serial port     
   println(Serial.list());
@@ -146,7 +152,7 @@ void draw() {
   
   for (int i=0;i<scopes.length;i++){
     
-    scopes[i].addData(int(vals[i] * yFactors[i]) + yOffsets[i]);
+    scopes[i].addData(int((vals[i] * yFactors[i]) + pow(yOffsets[i], 3)));
     scopes[i].draw();
     
     scopes[i].drawBounds();   
@@ -162,6 +168,7 @@ void draw() {
       // yfactor text
       fill(255);
       text("y * " + yFactors[i], dim[0] + 10,pos[1] + 60); 
+      text("+ " + yOffsets[i] + "^3", dim[0] + 70,pos[1] + 60); 
       fill(scopes[i].getLine_color());
       text(plotVars[i], dim[0] + 10, pos[1] + 15);
     }
@@ -204,6 +211,10 @@ void controlEvent(ControlEvent theEvent) {
     yFactors[id] = yFactors[id] * 2;
   } else if (id < 40){ // decrease yFactor
     yFactors[id-20] = yFactors[id-20] / 2;
+  } else if (id < 60) { // increase yFactor
+      yOffsets[id-40]++;
+  } else if (id < 80){ // decrease yFactor
+      yOffsets[id-60]--;
   } else if ( id == 1100) { // pause display
     for (int i=0; i<numScopes; i++) {
       scopes[i].setPause(!scopes[i].isPause());
